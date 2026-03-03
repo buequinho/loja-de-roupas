@@ -1,0 +1,10 @@
+{
+  "name": "loja-de-roupas",
+  "version": "1.0.0",
+  "description": "Loja de roupas full stack com frontend e backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
