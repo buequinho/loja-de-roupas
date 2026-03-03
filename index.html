@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard de Produtos</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="card">
+        <h1>Cadastro de produtos</h1>
+        <p class="subtitle">Adicione, edite e remova produtos diretamente pelo dashboard.</p>
+
+        <form id="product-form" class="product-form">
+          <input type="hidden" id="product-id" />
+
+          <label for="name">Nome do produto</label>
+          <input id="name" name="name" type="text" placeholder="Ex.: Camiseta básica" required />
+
+          <div class="grid-two">
+            <div>
+              <label for="price">Preço (R$)</label>
+              <input id="price" name="price" type="number" min="0" step="0.01" placeholder="99.90" required />
+            </div>
+
+            <div>
+              <label for="stock">Estoque</label>
+              <input id="stock" name="stock" type="number" min="0" step="1" placeholder="10" required />
+            </div>
+          </div>
+
+          <label for="category">Categoria</label>
+          <input id="category" name="category" type="text" placeholder="Ex.: Masculino" required />
+
+          <div class="actions">
+            <button type="submit" id="submit-button">Cadastrar produto</button>
+            <button type="button" id="cancel-edit" class="secondary hidden">Cancelar edição</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="table-header">
+          <h2>Produtos cadastrados</h2>
+          <span id="product-count">0 produtos</span>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Estoque</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="product-list"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <template id="empty-state-template">
+      <tr>
+        <td colspan="5" class="empty-state">Nenhum produto cadastrado ainda.</td>
+      </tr>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
