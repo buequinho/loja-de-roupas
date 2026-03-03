@@ -11,22 +11,57 @@ Sistema simples para funcionar como **ficha em sistema**, com:
 
 ## Requisitos
 
-- Python 3.10+
+- Python 3.10+ instalado no computador.
 
-## Como usar
+## Passo a passo para executar
+
+### 1) Abrir o terminal na pasta do projeto
+Entre na pasta onde está o arquivo `app.py`.
+
+Exemplo:
+
+```bash
+cd /workspace/loja-de-roupas
+```
+
+### 2) (Opcional) Confirmar a versão do Python
+
+```bash
+python3 --version
+```
+
+Se aparecer versão 3.10 ou maior, está ok.
+
+### 3) Executar o sistema
 
 ```bash
 python3 app.py
 ```
 
-O banco SQLite (`loja.db`) é criado automaticamente na primeira execução.
+Na primeira execução, o sistema cria automaticamente o banco `loja.db` no mesmo diretório.
 
-## Fluxo sugerido
+### 4) Usar o menu
+Você verá opções numeradas no terminal. Fluxo recomendado:
 
-1. Cadastre os clientes.
-2. Cadastre as roupas no estoque.
-3. Registre saídas (venda):
-   - pago agora: já entra no caixa,
-   - não pago: fica em aberto como ficha.
-4. Quando o cliente pagar, registre o pagamento da ficha.
-5. Consulte extrato e saldo do caixa.
+1. **Cadastrar cliente**
+2. **Cadastrar roupa no estoque**
+3. **Registrar saída de roupa (venda/ficha)**
+   - se escolher pagamento na hora, entra direto no caixa;
+   - se não pagar, fica como ficha em aberto.
+4. **Ver fichas em aberto**
+5. **Registrar pagamento de ficha** quando o cliente pagar.
+6. **Ver extrato e saldo do caixa**.
+
+### 5) Encerrar
+No menu, digite:
+
+```text
+0
+```
+
+para sair do sistema.
+
+## Dicas rápidas
+
+- Se quiser começar do zero, apague o arquivo `loja.db` (isso remove todos os dados).
+- Use sempre IDs que o próprio sistema mostra nas listagens (cliente, roupa e saída).
