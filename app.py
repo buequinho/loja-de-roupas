@@ -11,6 +11,16 @@ from typing import Iterable, Optional
 
 DB_PATH = Path("loja.db")
 
+# Cores ANSI (tema rosa e branco)
+RESET = "\033[0m"
+BOLD = "\033[1m"
+ROSA = "\033[95m"
+ROSA_FORTE = "\033[35m"
+BRANCO = "\033[97m"
+VERDE = "\033[92m"
+AMARELO = "\033[93m"
+VERMELHO = "\033[91m"
+
 
 @dataclass
 class Cliente:
@@ -223,22 +233,52 @@ def _agora() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
+def cor(texto: str, cor_ansi: str, negrito: bool = False) -> str:
+    peso = BOLD if negrito else ""
+    return f"{peso}{cor_ansi}{texto}{RESET}"
+
+
+def sucesso(msg: str) -> None:
+    print(cor(f"✔ {msg}", VERDE, negrito=True))
+
+
+def aviso(msg: str) -> None:
+    print(cor(f"⚠ {msg}", AMARELO, negrito=True))
+
+
+def erro(msg: str) -> None:
+    print(cor(f"✖ {msg}", VERMELHO, negrito=True))
+
+
+def cabecalho() -> None:
+    print(cor("\n╔══════════════════════════════════════════╗", ROSA_FORTE, negrito=True))
+    print(cor("║      SISTEMA LOJA DE ROUPAS - CLI       ║", BRANCO, negrito=True))
+    print(cor("║             Tema: Rosa e Branco         ║", ROSA, negrito=True))
+    print(cor("╚══════════════════════════════════════════╝", ROSA_FORTE, negrito=True))
+
+
 def pedir_int(msg: str) -> int:
     while True:
-        val = input(msg).strip()
+        val = input(cor(msg, BRANCO)).strip()
         try:
             return int(val)
         except ValueError:
-            print("Digite um número inteiro válido.")
+            erro("Digite um número inteiro válido.")
 
 
 def pedir_float(msg: str) -> float:
     while True:
-        val = input(msg).strip().replace(",", ".")
+        val = input(cor(msg, BRANCO)).strip().replace(",", ".")
         try:
             return float(val)
         except ValueError:
-            print("Digite um valor numérico válido.")
+            erro("Digite um valor numérico válido.")
+
+
+def exibir_menu(opcoes: dict[str, str]) -> None:
+    cabecalho()
+    for chave, desc in opcoes.items():
+        print(cor(f" {chave} ", ROSA_FORTE, negrito=True) + cor(f"- {desc}", BRANCO))
 
 
 def menu() -> None:
@@ -260,99 +300,111 @@ def menu() -> None:
 
     try:
         while True:
-            print("\n=== SISTEMA LOJA DE ROUPAS ===")
-            for chave, desc in opcoes.items():
-                print(f"{chave} - {desc}")
-
-            escolha = input("Escolha uma opção: ").strip()
+            exibir_menu(opcoes)
+            escolha = input(cor("\nEscolha uma opção: ", ROSA, negrito=True)).strip()
 
             if escolha == "1":
-                nome = input("Nome do cliente: ")
-                telefone = input("Telefone: ")
+                nome = input(cor("Nome do cliente: ", BRANCO))
+                telefone = input(cor("Telefone: ", BRANCO))
                 db.cadastrar_cliente(nome, telefone)
-                print("Cliente cadastrado com sucesso.")
+                sucesso("Cliente cadastrado com sucesso.")
 
             elif escolha == "2":
                 clientes = db.listar_clientes()
+                print(cor("\n--- CLIENTES ---", ROSA_FORTE, negrito=True))
                 if not clientes:
-                    print("Nenhum cliente cadastrado.")
+                    aviso("Nenhum cliente cadastrado.")
                 for c in clientes:
-                    print(f"#{c.id} - {c.nome} | Tel: {c.telefone}")
+                    print(cor(f"#{c.id} - {c.nome} | Tel: {c.telefone}", BRANCO))
 
             elif escolha == "3":
-                nome = input("Nome da roupa: ")
-                tamanho = input("Tamanho (P/M/G/GG/etc): ")
+                nome = input(cor("Nome da roupa: ", BRANCO))
+                tamanho = input(cor("Tamanho (P/M/G/GG/etc): ", BRANCO))
                 quantidade = pedir_int("Quantidade em estoque: ")
                 preco = pedir_float("Preço unitário: R$ ")
                 db.cadastrar_roupa(nome, tamanho, quantidade, preco)
-                print("Roupa cadastrada no estoque.")
+                sucesso("Roupa cadastrada no estoque.")
 
             elif escolha == "4":
                 roupas = db.listar_roupas()
+                print(cor("\n--- ESTOQUE ---", ROSA_FORTE, negrito=True))
                 if not roupas:
-                    print("Nenhuma roupa cadastrada.")
+                    aviso("Nenhuma roupa cadastrada.")
                 for r in roupas:
                     print(
-                        f"#{r.id} - {r.nome} {r.tamanho} | Estoque: {r.quantidade_estoque} | R$ {r.preco:.2f}"
+                        cor(
+                            f"#{r.id} - {r.nome} {r.tamanho} | Estoque: {r.quantidade_estoque} | R$ {r.preco:.2f}",
+                            BRANCO,
+                        )
                     )
 
             elif escolha == "5":
                 cliente_id = pedir_int("ID do cliente: ")
                 roupa_id = pedir_int("ID da roupa: ")
                 quantidade = pedir_int("Quantidade da saída: ")
-                pago = input("Pagamento agora? (s/n): ").strip().lower() == "s"
-                erro = db.registrar_saida(cliente_id, roupa_id, quantidade, pago)
-                if erro:
-                    print(f"Erro: {erro}")
+                pago = input(cor("Pagamento agora? (s/n): ", BRANCO)).strip().lower() == "s"
+                msg_erro = db.registrar_saida(cliente_id, roupa_id, quantidade, pago)
+                if msg_erro:
+                    erro(msg_erro)
                 else:
-                    print("Saída registrada com sucesso.")
+                    sucesso("Saída registrada com sucesso.")
 
             elif escolha == "6":
                 fichas = db.listar_fichas_abertas()
+                print(cor("\n--- FICHAS EM ABERTO ---", ROSA_FORTE, negrito=True))
                 if not fichas:
-                    print("Não há fichas em aberto.")
+                    aviso("Não há fichas em aberto.")
                 for f in fichas:
                     print(
-                        f"Saída #{f['id']} | Cliente: {f['cliente']} | {f['roupa']} x{f['quantidade']} | "
-                        f"R$ {f['valor_total']:.2f} | Em: {f['criado_em']}"
+                        cor(
+                            f"Saída #{f['id']} | Cliente: {f['cliente']} | {f['roupa']} x{f['quantidade']} | "
+                            f"R$ {f['valor_total']:.2f} | Em: {f['criado_em']}",
+                            BRANCO,
+                        )
                     )
 
             elif escolha == "7":
                 saida_id = pedir_int("ID da saída para marcar como paga: ")
-                erro = db.registrar_pagamento(saida_id)
-                if erro:
-                    print(f"Erro: {erro}")
+                msg_erro = db.registrar_pagamento(saida_id)
+                if msg_erro:
+                    erro(msg_erro)
                 else:
-                    print("Pagamento registrado e caixa atualizado.")
+                    sucesso("Pagamento registrado e caixa atualizado.")
 
             elif escolha == "8":
-                tipo = input("Tipo (ENTRADA/SAIDA): ").strip().upper()
+                tipo = input(cor("Tipo (ENTRADA/SAIDA): ", BRANCO)).strip().upper()
                 if tipo not in {"ENTRADA", "SAIDA"}:
-                    print("Tipo inválido.")
+                    erro("Tipo inválido.")
                     continue
                 valor = pedir_float("Valor: R$ ")
-                descricao = input("Descrição: ")
+                descricao = input(cor("Descrição: ", BRANCO))
                 db.registrar_movimento_manual(tipo, valor, descricao)
-                print("Movimento registrado.")
+                sucesso("Movimento registrado.")
 
             elif escolha == "9":
-                print("--- Extrato de caixa ---")
+                print(cor("\n--- EXTRATO DE CAIXA ---", ROSA_FORTE, negrito=True))
                 extrato = db.extrato_caixa()
                 if not extrato:
-                    print("Nenhum movimento no caixa.")
+                    aviso("Nenhum movimento no caixa.")
                 for m in extrato:
                     sinal = "+" if m["tipo"] == "ENTRADA" else "-"
+                    cor_valor = ROSA if sinal == "+" else BRANCO
                     print(
-                        f"#{m['id']} [{m['criado_em']}] {m['descricao']} -> {sinal}R$ {m['valor']:.2f}"
+                        cor(
+                            f"#{m['id']} [{m['criado_em']}] {m['descricao']} -> {sinal}R$ {m['valor']:.2f}",
+                            cor_valor,
+                        )
                     )
-                print(f"Saldo atual: R$ {db.saldo_caixa():.2f}")
+                print(cor(f"Saldo atual: R$ {db.saldo_caixa():.2f}", ROSA_FORTE, negrito=True))
 
             elif escolha == "0":
-                print("Até logo!")
+                sucesso("Até logo!")
                 break
 
             else:
-                print("Opção inválida.")
+                erro("Opção inválida.")
+
+            input(cor("\nPressione ENTER para continuar...", ROSA))
     finally:
         db.close()
 
